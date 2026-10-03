@@ -1,0 +1,124 @@
+@import "vars"
+
+
+/*==========  Desktop First  ==========*/
+
+// ≥1200px
++media-breakpoint-down(lg)
+
+// ≥992px
++media-breakpoint-down(md)
+	nav
+		position: relative
+		.col-md-12	
+			padding: 10px 0
+		ul
+			text-align: center
+			display: none
+			position: absolute
+			left: 0
+			width: 100%
+			top: 25px
+			z-index: 10
+			background-color: $dark
+			padding: 5px 10px
+			li
+				display: block
+				padding-right: 0
+				padding-left: 0
+				padding: 5px 0
+				&.active
+					a
+						color: #fff
+						border-color: #fff
+						display: block
+				a
+					color: #fff
+	.popular img
+		width: 100%
+	h1
+		font-size: 26px
+	h2
+		font-size: 22px
+	h3
+		font-size: 18px
+
+// ≥768px
++media-breakpoint-down(sm)
+	nav.fixed
+		position: static
+	header 
+		form 
+			select
+				margin-right: 0
+				width: 95%
+				display: block
+				margin: 0 auto 5px
+			input
+				width: 95%
+				display: block
+				margin: 0 auto
+			.more
+				bottom: 4px
+				top: auto
+	
+	.category-item
+		margin-bottom: 20px
+	
+	.heading
+		margin-bottom: 10px
+
+	.popular-item-last img
+		height: auto
+
+	.lenta-item .col-md-9
+		padding-left: 10px
+	.lenta-item .col-md-3 img
+		border-bottom-left-radius: 0
+		height: auto
+	.lenta .text-wrap
+		border-top: none
+		border-top-right-radius: 0
+		padding: 10px
+	.category .news-item .col-md-4
+		padding-right: 10px
+	.mediateka h4, .recom-item
+		margin-top: 5px
+	
+	.footer
+		text-align: center
+		img
+			display: block
+			margin: 0 auto 5px
+			max-width: 70%
+		.soc
+			text-align: center
+
+	.lenta-item .col-md-3
+		padding-right: 10px
+	.tags ul li
+		display: block
+		margin-bottom: 5px
+		a
+			display: block
+// ≥576px
++media-breakpoint-down(xs)
+
+
+/*==========  Mobile First  ==========*/
+
+// ≤576px
++media-breakpoint-up(sm)
+
+// ≤768px
++media-breakpoint-up(md)
+
+// ≤992px
++media-breakpoint-up(lg)
+
+// ≤1200px
++media-breakpoint-up(xl)
+
+@media print
+	.search, .soc, nav, .right, .single .related, footer, .top
+		display: none
