@@ -3,7 +3,7 @@
 function custom_scripts() {
 	wp_enqueue_style('style', get_template_directory_uri().'/style.css');
 	wp_enqueue_style('main', get_template_directory_uri().'/css/main.min.css', array(), 2.9);
-	wp_enqueue_script('scripts', get_template_directory_uri().'/js/scripts.min.js', array(), 1.8);
+	wp_enqueue_script('scripts', get_template_directory_uri().'/js/scripts.min.js', array('jquery'), '1.8', true);
 }
 add_action('wp_enqueue_scripts', 'custom_scripts');
 
@@ -43,10 +43,11 @@ add_filter('excerpt_more', function($more) {
 //thumbnail
 add_image_size( 'bigcategory', 270, 165, true);
 add_image_size( 'slide', 835, 460, true);
-remove_image_size( 'medium_large');
-remove_image_size( 'medium');
-remove_image_size( '1536x1536');
-remove_image_size( '2048x2048');
+add_filter('intermediate_image_sizes_advanced', 'km_drop_heavy_image_sizes');
+function km_drop_heavy_image_sizes($sizes) {
+	unset($sizes['medium'], $sizes['medium_large'], $sizes['1536x1536'], $sizes['2048x2048']);
+	return $sizes;
+}
 
 // Удаляет ссылки RSS-лент записи и комментариев
 remove_action( 'wp_head', 'feed_links', 2 ); 
@@ -94,20 +95,18 @@ if( 'disable_gutenberg' ){ add_filter( 'use_block_editor_for_post_type', '__retu
 	//view
 add_action( 'pre_get_posts', 'my_view_filter' );
 function my_view_filter($query){
-	if ( 
-		!is_admin() && 
-		$query->is_main_query() && 
-		( $query->is_home() || $query->is_archive() || $query->is_search() )
-	) {
-		if (isset($_REQUEST['orderby'])) {
-			$order = $_REQUEST['orderby'];
-		}
-		if ( $order === 'views') {
-			$query->set('meta_key', 'post_views_count');
-			$query->set('orderby', 'meta_value_num');
-			$query->set('order', 'DESC');
-		}
+	if (is_admin() || !$query->is_main_query()) {
+		return;
 	}
+	if (!($query->is_home() || $query->is_archive() || $query->is_search())) {
+		return;
+	}
+	if (!isset($_REQUEST['orderby']) || $_REQUEST['orderby'] !== 'views') {
+		return;
+	}
+	$query->set('meta_key', 'post_views_count');
+	$query->set('orderby', 'meta_value_num');
+	$query->set('order', 'DESC');
 }
 
 //search
@@ -121,13 +120,12 @@ function my_get_search_form() {
 }
 
 add_action('pre_get_posts', 'search_by_cat');
-function  search_by_cat() {
-	global $wp_query;
-	if (is_search()) {
-		$cat =  intval($_GET['cat']);
-		if($cat<0) $cat='';
-		$wp_query->query_vars['cat'] = $cat;
+function search_by_cat($query) {
+	if (is_admin() || !$query instanceof WP_Query || !$query->is_main_query() || !$query->is_search() || !isset($_GET['cat'])) {
+		return;
 	}
+	$cat = intval($_GET['cat']);
+	$query->set('cat', $cat > 0 ? $cat : '');
 }
 
 function getDateRu(){
@@ -141,70 +139,39 @@ function getDateRu(){
 
 add_action( 'init', 'blockusers_init' );
 function blockusers_init() {
-	global $current_user; wp_get_current_user(); 
-	if ( $current_user->user_login == 'konok' ) { 
-		wp_redirect( home_url() );
+	if (!is_admin() || wp_doing_ajax() || !is_user_logged_in()) {
+		return;
 	}
-	if ( $current_user->user_login == 'ofchintamani' ) { 
-		wp_redirect( home_url() );
-	}
-	if ( $current_user->user_login == 'ofchintamanikm' ) { 
-		wp_redirect( home_url() );
-	}
-	if ( $current_user->user_login == 'radiomost' ) { 
-		wp_redirect( home_url() );
-	}
-	if ( $current_user->user_login == 'radiomosttalas' ) { 
-		wp_redirect( home_url() );
-	}
-	if ( $current_user->user_login == 'uchkorgon' ) { 
-		wp_redirect( home_url() );
-	}
-	if ( $current_user->user_login == 'nevaket' ) { 
-		wp_redirect( home_url() );
-	}
-	if ( $current_user->user_login == 'aosmikg' ) { 
-		wp_redirect( home_url() );
-	}
-	if ( $current_user->user_login == 'kyzyltoochuykm' ) { 
-		wp_redirect( home_url() );
-	}
-	if ( $current_user->user_login == 'talasfmru' ) { 
-		wp_redirect( home_url() );
+	$blocked = array('konok', 'ofchintamani', 'ofchintamanikm', 'radiomost', 'radiomosttalas', 'uchkorgon', 'nevaket', 'aosmikg', 'kyzyltoochuykm', 'talasfmru');
+	$user = wp_get_current_user();
+	if (in_array($user->user_login, $blocked, true)) {
+		wp_safe_redirect(home_url('/'));
+		exit;
 	}
 }
 
-if ( function_exists( 'get_sites' ) && class_exists( 'WP_Site_Query' ) ) {
-	$custom_fields = '';
-	$main_blog = 1;
-		switch_to_blog( $main_blog );
-		$custom_fields = array(
-			'covid-total' 		=> get_field('covid-total', 'options'),
-			'covid-new' 		=> get_field('covid-new', 'options'),
-			'covid-medic' 	=> get_field('covid-medic', 'options'),
-			'covid-health' 	=> get_field('covid-health', 'options'),
-			'covid-dead' => get_field('covid-dead', 'options'),
-			'covid-bishkek' => get_field('covid-bishkek', 'options'),
-			'covid-osh' => get_field('covid-osh', 'options'),
-			'covid-batken' => get_field('covid-batken', 'options'),
-			'covid-ik' => get_field('covid-ik', 'options'),
-			'covid-djalal' => get_field('covid-djalal', 'options'),
-			'covid-naryn' => get_field('covid-naryn', 'options'),
-			'covid-talas' => get_field('covid-talas', 'options'),
-			'facebook' => get_field('facebook', 'options'),
-			'instagram' => get_field('instagram', 'options'),
-			'youtube' => get_field('youtube', 'options'),
-			'rss' => get_field('rss', 'options')
-		);
-			
+function km_load_main_site_fields() {
+	$keys = array(
+		'covid-total', 'covid-new', 'covid-medic', 'covid-health', 'covid-dead',
+		'covid-bishkek', 'covid-osh', 'covid-batken', 'covid-ik', 'covid-djalal',
+		'covid-naryn', 'covid-talas', 'facebook', 'instagram', 'youtube', 'rss',
+	);
+	$fields = array_fill_keys($keys, '');
+	if (function_exists('get_field')) {
+		switch_to_blog(1);
+		foreach ($keys as $key) {
+			$fields[$key] = get_field($key, 'options');
+		}
 		restore_current_blog();
-	
-	return $custom_fields;
+	}
+	$GLOBALS['custom_fields'] = $fields;
 }
+add_action('wp', 'km_load_main_site_fields');
 
 //hsts
 function tg_enable_strict_transport_security_hsts_header_wordpress() {
-    header( 'Strict-Transport-Security: max-age=31536000' );
+	if (is_ssl()) {
+		header('Strict-Transport-Security: max-age=31536000');
+	}
 }
 add_action( 'send_headers', 'tg_enable_strict_transport_security_hsts_header_wordpress' );
-?>

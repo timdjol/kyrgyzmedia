@@ -3,7 +3,7 @@
 function custom_scripts() {
 	wp_enqueue_style('style', get_template_directory_uri().'/style.css');
 	wp_enqueue_style('main', get_template_directory_uri().'/css/main.min.css', array(), 1.5);
-	wp_enqueue_script('scripts', get_template_directory_uri().'/js/scripts.min.js');
+	wp_enqueue_script('scripts', get_template_directory_uri().'/js/scripts.min.js', array('jquery'), '1.5', true);
 }
 add_action('wp_enqueue_scripts', 'custom_scripts');
 
@@ -45,15 +45,11 @@ add_filter('excerpt_more', function($more) {
 
 //thumbnail
 add_image_size( 'main', 450, 310, true);
-add_image_size( '2048x2048', 0, 0, true);
-add_image_size( '1536x1536', 0, 0, true);
-add_image_size( 'thumbnail', 0, 0, true);
-add_image_size( 'medium', 0, 0, true);
-add_image_size( 'medium_large', 0, 0, true);
-add_image_size( 'large', 0, 0, true);
-remove_image_size( 'medium_large');
-remove_image_size( '1536x1536');
-remove_image_size( '2048x2048');
+add_filter('intermediate_image_sizes_advanced', 'km_drop_heavy_image_sizes');
+function km_drop_heavy_image_sizes($sizes) {
+	unset($sizes['medium_large'], $sizes['1536x1536'], $sizes['2048x2048']);
+	return $sizes;
+}
 
 // Удаляет ссылки RSS-лент записи и комментариев
 remove_action( 'wp_head', 'feed_links', 2 ); 
@@ -185,19 +181,18 @@ function getDateRu(){
 function disableAutoSave(){
 	wp_deregister_script('autosave');
 }
-add_action( 'wp_print_scripts', 'disableAutoSave' );
+add_action( 'admin_print_scripts', 'disableAutoSave' );
 
 if( 'disable_gutenberg' ){ add_filter( 'use_block_editor_for_post_type', '__return_false', 100 ); add_action( 'admin_init', function(){ remove_action( 'admin_notices', [ 'WP_Privacy_Policy_Content', 'notice' ] ); add_action( 'edit_form_after_title', [ 'WP_Privacy_Policy_Content', 'notice' ] ); } ); }
 
 function the_shot_review_word ($count) {
-	$content = get_the_content();
-	$trimmed_content = wp_trim_words( $content, $count);
-	echo $trimmed_content;
+	echo wp_trim_words(get_post_field('post_content', get_the_ID()), $count, '…');
 }
 
 //hsts
 function tg_enable_strict_transport_security_hsts_header_wordpress() {
-    header( 'Strict-Transport-Security: max-age=31536000' );
+	if (is_ssl()) {
+		header('Strict-Transport-Security: max-age=31536000');
+	}
 }
 add_action( 'send_headers', 'tg_enable_strict_transport_security_hsts_header_wordpress' );
-?>
