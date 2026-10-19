@@ -6,9 +6,9 @@
 						<div class="text"><?php echo getDayKg(); echo '<br>';echo getDateKg(); ?></div>
 					</div>
 					
-			    <div class="video d-xl-block d-lg-block d-none">
-            	    <iframe width="100%" height="220" src="https://www.youtube.com/embed/<?php the_field('id_youtube', 37878);?>" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            	</div>
+            <div class="d-xl-block d-lg-block d-none">
+                <?php km_youtube_box('id_youtube', 37878, 220); ?>
+            </div>
 
 				<a href="http://covid.kyrgyzmedia.kg">
 					<div class="covid covid-head" style="margin-bottom: 20px">
@@ -16,9 +16,9 @@
 					</div>
 				</a>
 				
-				<div class="video d-xl-block d-lg-block d-none">
-            	    <iframe width="100%" height="220" src="https://www.youtube.com/embed/<?php the_field('id_youtube2', 37878);?>" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            	</div>
+            <div class="d-xl-block d-lg-block d-none">
+                <?php km_youtube_box('id_youtube2', 37878, 220); ?>
+            </div>
             	
             	<a href="https://kyrgyzmedia.kg/category/top10/">
             	    <div class="calend topmak"><?php the_field('top10')?></div>

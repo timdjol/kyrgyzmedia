@@ -188,6 +188,55 @@ function blockusers_init() {
 /**
  * Безопасное получение covid-полей с главного сайта multisite
  */
+function km_youtube_id($value) {
+	$value = trim((string) $value);
+	if (preg_match('~(?:youtu\.be/|v=|embed/)([A-Za-z0-9_-]{6,})~', $value, $m)) {
+		return $m[1];
+	}
+	if (preg_match('~^[A-Za-z0-9_-]{6,}$~', $value)) {
+		return $value;
+	}
+	return '';
+}
+
+function km_youtube_box($field, $post_id = 37878, $height = 220) {
+	$id = km_youtube_id(get_field($field, $post_id));
+	if ($id === '') {
+		return;
+	}
+	static $assets = false;
+	if (!$assets) {
+		$assets = true;
+		add_action('wp_footer', 'km_youtube_box_script', 20);
+	}
+	$id_attr = esc_attr($id);
+	$height = (int) $height;
+	echo '<div class="video km-yt" data-yt="' . $id_attr . '" data-h="' . $height . '" style="height:' . $height . 'px;background:#111 url(https://i.ytimg.com/vi/' . $id_attr . '/hqdefault.jpg) center/cover no-repeat;cursor:pointer">';
+	echo '<button type="button" class="km-yt-play" aria-label="Видео"></button>';
+	echo '</div>';
+}
+
+function km_youtube_box_script() {
+	?>
+	<style>
+	.km-yt{position:relative}
+	.km-yt-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:68px;height:48px;border:0;border-radius:14px;background:#ff0000;cursor:pointer;padding:0}
+	.km-yt-play:before{content:"";position:absolute;left:26px;top:14px;border-style:solid;border-width:10px 0 10px 16px;border-color:transparent transparent transparent #fff}
+	</style>
+	<script>
+	document.addEventListener('click', function (e) {
+		var box = e.target.closest('.km-yt');
+		if (!box) return;
+		e.preventDefault();
+		var id = box.getAttribute('data-yt');
+		var h = box.getAttribute('data-h') || '220';
+		if (!/^[A-Za-z0-9_-]{6,}$/.test(id)) return;
+		box.innerHTML = '<iframe width="100%" height="' + h + '" src="https://www.youtube.com/embed/' + id + '?autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+	});
+	</script>
+	<?php
+}
+
 function km_get_main_blog_covid_fields() {
     if (!function_exists('get_sites') || !class_exists('WP_Site_Query')) {
         return array();

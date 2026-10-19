@@ -53,11 +53,11 @@ get_header(); ?>
 					</div>
 				</div><!-- last -->
 				
-				<div class="video d-xl-none d-lg-none d-block">
-            	    <iframe width="100%" height="220" src="https://www.youtube.com/embed/<?php the_field('id_youtube', 37878);?>" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+				<div class="d-xl-none d-lg-none d-block">
+            	    <?php km_youtube_box('id_youtube', 37878, 220); ?>
             	</div>
-            	<div class="video d-xl-none d-lg-none d-block">
-            	    <iframe width="100%" height="220" src="https://www.youtube.com/embed/<?php the_field('id_youtube2', 37878);?>" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            	<div class="d-xl-none d-lg-none d-block">
+            	    <?php km_youtube_box('id_youtube2', 37878, 220); ?>
             	</div>
 
 				<div class="all">
